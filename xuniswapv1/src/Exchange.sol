@@ -9,8 +9,10 @@ contract Exchange {
     using SafeERC20 for IERC20;
     // errors
     error Exchange__Invalid_address();
+    error Exchange__Invalid_Reserves();
 
     address public immutable i_token;
+    uint16 constant BASE = 10_000;
 
     constructor(address _token) {
         if (_token == address(0)) {
@@ -28,5 +30,16 @@ contract Exchange {
 
     function getReserve() public view returns (uint256) {
         return IERC20(i_token).balanceOf(address(this));
+    }
+
+    function getPrice(
+        uint256 inputReserve,
+        uint256 outputReserve
+    ) public pure returns (uint256) {
+        if (inputReserve == 0 && outputReserve == 0) {
+            revert Exchange__Invalid_Reserves();
+        }
+
+        return (inputReserve * BASE) / outputReserve;
     }
 }
